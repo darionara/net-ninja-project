@@ -4,6 +4,7 @@ import BlogList from './BlogList';
 const Home = () => {
     const [blogs, setBlogs] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+		const [error, setError] = useState(null);
 
 // We don't want to use this function in our blog site
     /*  const handleDelete = (id) => {
@@ -16,18 +17,28 @@ const Home = () => {
 API. This is not used in real life :) */
         setTimeout(() => {
             fetch('http://localhost:8000/blogs')
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                setBlogs(data);
-                setIsLoading(false);
-            });
+                .then(response => {
+									console.log(response);
+									if (response.ok) {
+											return response.json();
+									}
+                  throw Error('could not fetch the data for that resource')
+                })
+                .then(data => {
+                    setBlogs(data);
+                    setIsLoading(false);
+										setError(null);
+                })
+                .catch(error => {
+										setError(error.message);
+										setIsLoading(false);
+								})
         }, 1000);
     }, []);
 
     return ( 
         <div className="home">
+						{ error && <div>{error}</div> }
             { isLoading && <div>Loading...</div> }
 {/* The code on the right side of 'logical and' will be evaluated only when the left side is true. In our situation
 during the first render the blogs value = null so the left side of below code is false so the right side will
